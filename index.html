@@ -6,41 +6,41 @@
   <title>Core Drop: 0 or 100</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
-    body { background: #0b090a; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
-    #gameContainer { position: relative; width: 100vw; max-width: 480px; height: 100vh; max-height: 960px; background: #161a1d; overflow: hidden; border: 2px solid #333; }
+    body { background: #080708; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    #gameContainer { position: relative; width: 100vw; max-width: 440px; height: 100vh; max-height: 900px; background: #110e14; overflow: hidden; border: 2px solid #2b2633; box-shadow: 0 0 24px rgba(0,0,0,0.9); }
     canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
 
     /* 로비 화면 */
-    #lobbyScreen { position: absolute; inset: 0; background: radial-gradient(circle, #2d0c03 0%, #0b090a 100%); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 24px 16px; z-index: 10; }
+    #lobbyScreen { position: absolute; inset: 0; background: radial-gradient(circle at center, #26110a 0%, #0b0709 100%); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 28px 16px; z-index: 10; }
     .title-box { text-align: center; }
-    .title-main { font-size: 28px; font-weight: 900; color: #ffba08; text-shadow: 2px 2px 0 #d00000, 4px 4px 0 #000; letter-spacing: 1px; }
-    .title-sub { font-size: 14px; color: #e85d04; margin-top: 4px; font-weight: bold; }
-    .drill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 400px; }
-    .drill-card { background: #22252a; border: 2px solid #444; border-radius: 8px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.2s; }
-    .drill-card.selected { border-color: #ffba08; background: #372314; box-shadow: 0 0 12px rgba(255, 186, 8, 0.4); transform: translateY(-2px); }
-    .drill-icon { font-size: 32px; margin-bottom: 6px; }
+    .title-main { font-size: 26px; font-weight: 900; color: #ffb703; text-shadow: 3px 3px 0 #d00000, 5px 5px 0 #000; letter-spacing: 1.5px; }
+    .title-sub { font-size: 13px; color: #fb8500; margin-top: 6px; font-weight: bold; letter-spacing: 0.5px; }
+    .drill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 380px; }
+    .drill-card { background: #1a1721; border: 2px solid #3d354a; border-radius: 8px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.15s; }
+    .drill-card.selected { border-color: #ffb703; background: #2f1d18; box-shadow: 0 0 14px rgba(255, 183, 3, 0.45); transform: translateY(-3px); }
+    .drill-icon { font-size: 34px; margin-bottom: 6px; }
     .drill-name { font-size: 14px; font-weight: bold; color: #fdf0d5; margin-bottom: 4px; }
-    .drill-desc { font-size: 10px; color: #aaa; line-height: 1.3; }
-    .start-btn { width: 100%; max-width: 320px; padding: 16px; font-size: 20px; font-weight: 900; background: #d00000; color: #fff; border: 2px solid #ffba08; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 0 #6a040f; text-shadow: 1px 1px 0 #000; }
-    .start-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #6a040f; }
+    .drill-desc { font-size: 10px; color: #9d94a8; line-height: 1.35; }
+    .start-btn { width: 100%; max-width: 300px; padding: 15px; font-size: 18px; font-weight: 900; background: #d00000; color: #fff; border: 2px solid #ffb703; border-radius: 8px; cursor: pointer; box-shadow: 0 5px 0 #6a040f; text-shadow: 1px 1px 0 #000; }
+    .start-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #6a040f; }
 
-    /* 인게임 HUD (미니맵 & 탑10 리더보드) */
-    .hud-box { position: absolute; bottom: 12px; width: 130px; height: 160px; background: rgba(18, 20, 24, 0.88); border: 2px solid #555; border-radius: 6px; padding: 6px; z-index: 5; pointer-events: none; }
-    #minimapBox { left: 10px; display: flex; flex-direction: column; align-items: center; }
-    #leaderboardBox { right: 10px; overflow: hidden; display: flex; flex-direction: column; }
-    .hud-title { font-size: 9px; font-weight: bold; color: #ffba08; text-align: center; margin-bottom: 4px; text-transform: uppercase; }
-    #minimapCanvas { width: 100%; height: 100%; background: #111; border-radius: 4px; }
-    .rank-list { font-size: 9px; list-style: none; display: flex; flex-direction: column; gap: 3px; }
-    .rank-item { display: flex; justify-content: space-between; align-items: center; color: #ddd; white-space: nowrap; }
-    .rank-item span:first-child { overflow: hidden; text-overflow: ellipsis; max-width: 75px; }
+    /* 인게임 HUD (미니맵 & 탑10) */
+    .hud-box { position: absolute; bottom: 12px; width: 110px; height: 138px; background: rgba(14, 12, 18, 0.92); border: 2px solid #4a4158; border-radius: 6px; padding: 5px; z-index: 5; pointer-events: none; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
+    #minimapBox { left: 8px; display: flex; flex-direction: column; align-items: center; }
+    #leaderboardBox { right: 8px; overflow: hidden; display: flex; flex-direction: column; }
+    .hud-title { font-size: 8px; font-weight: bold; color: #ffb703; text-align: center; margin-bottom: 3px; letter-spacing: 0.5px; }
+    #minimapCanvas { width: 100%; height: 100%; background: #08060a; border-radius: 3px; border: 1px solid #261f30; }
+    .rank-list { font-size: 8px; list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .rank-item { display: flex; justify-content: space-between; align-items: center; color: #c4bcd0; white-space: nowrap; }
+    .rank-item span:first-child { overflow: hidden; text-overflow: ellipsis; max-width: 60px; }
 
-    /* 사망 / 게임오버 모달 */
-    #gameOverModal { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.85); display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; z-index: 20; }
-    .modal-card { background: #1f2421; border: 2px solid #d00000; border-radius: 8px; padding: 20px; width: 100%; max-width: 320px; text-align: center; }
-    .modal-title { font-size: 24px; font-weight: bold; color: #d00000; margin-bottom: 8px; }
-    .final-score { font-size: 16px; color: #ffba08; margin-bottom: 16px; }
-    .nick-input { width: 100%; padding: 10px; font-size: 14px; background: #000; border: 1px solid #555; color: #fff; border-radius: 4px; margin-bottom: 12px; text-align: center; }
-    .submit-btn { width: 100%; padding: 12px; font-size: 16px; font-weight: bold; background: #ffba08; color: #000; border: none; border-radius: 4px; cursor: pointer; }
+    /* 게임오버 모달 */
+    #gameOverModal { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.88); display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; z-index: 20; }
+    .modal-card { background: #19151f; border: 2px solid #d00000; border-radius: 8px; padding: 20px; width: 100%; max-width: 300px; text-align: center; }
+    .modal-title { font-size: 22px; font-weight: bold; color: #d00000; margin-bottom: 8px; }
+    .final-score { font-size: 15px; color: #ffb703; margin-bottom: 14px; }
+    .nick-input { width: 100%; padding: 10px; font-size: 14px; background: #0b090f; border: 1px solid #443c52; color: #fff; border-radius: 4px; margin-bottom: 12px; text-align: center; }
+    .submit-btn { width: 100%; padding: 12px; font-size: 15px; font-weight: bold; background: #ffb703; color: #000; border: none; border-radius: 4px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -57,38 +57,38 @@
       <div class="drill-card selected" onclick="selectDrill(0)">
         <div class="drill-icon">🟡</div>
         <div class="drill-name">스피디</div>
-        <div class="drill-desc">좌우이동 빠름<br>굴착속도 보통</div>
+        <div class="drill-desc">좌우이동 최상<br>굴착속도 보통</div>
       </div>
       <div class="drill-card" onclick="selectDrill(1)">
         <div class="drill-icon">🔴</div>
         <div class="drill-name">헤비 브레이커</div>
-        <div class="drill-desc">좌우이동 느림<br>굴착속도 매우빠름</div>
+        <div class="drill-desc">좌우이동 둔중<br>굴착속도 극강</div>
       </div>
       <div class="drill-card" onclick="selectDrill(2)">
         <div class="drill-icon">🔵</div>
         <div class="drill-name">마그넷 호버</div>
-        <div class="drill-desc">완벽한 밸런스<br>평균 이동/굴착</div>
+        <div class="drill-desc">균형 잡힌 성능<br>안정적인 제어</div>
       </div>
       <div class="drill-card" onclick="selectDrill(3)">
         <div class="drill-icon">🟣</div>
         <div class="drill-name">니트로 갬블러</div>
-        <div class="drill-desc">초고속 질주<br>컨트롤 불안정</div>
+        <div class="drill-desc">초고속 질주<br>제어 난이도 상</div>
       </div>
     </div>
 
-    <button class="start-btn" onclick="startGame()">강하 시작</button>
+    <button class="start-btn" onclick="startGame()">강하 개시</button>
   </div>
 
-  <!-- 게임 메인 캔버스 -->
-  <canvas id="gameCanvas" width="480" height="854"></canvas>
+  <!-- 메인 캔버스 -->
+  <canvas id="gameCanvas" width="440" height="880"></canvas>
 
   <!-- 좌측 하단 미니맵 -->
   <div class="hud-box" id="minimapBox">
     <div class="hud-title">지층 레이더</div>
-    <canvas id="minimapCanvas" width="118" height="136"></canvas>
+    <canvas id="minimapCanvas" width="96" height="114"></canvas>
   </div>
 
-  <!-- 우측 하단 글로벌 탑10 리더보드 -->
+  <!-- 우측 하단 글로벌 탑10 -->
   <div class="hud-box" id="leaderboardBox">
     <div class="hud-title">글로벌 Top 10</div>
     <ul class="rank-list" id="rankList">
@@ -96,7 +96,7 @@
     </ul>
   </div>
 
-  <!-- 게임오버 모달 -->
+  <!-- 게임오버 팝업 -->
   <div id="gameOverModal">
     <div class="modal-card">
       <div class="modal-title">드릴 파괴됨!</div>
@@ -138,7 +138,6 @@
     return String.fromCodePoint(...codePoints);
   }
 
-  // 실시간 탑10 리스너
   const q = query(collection(db, "scores"), orderBy("score", "desc"), limit(10));
   onSnapshot(q, (snapshot) => {
     const list = document.getElementById("rankList");
@@ -154,7 +153,6 @@
     });
   });
 
-  // 실시간 위치 리스너
   const pCol = collection(db, "players");
   onSnapshot(pCol, (snapshot) => {
     window.otherPlayers = [];
@@ -175,9 +173,7 @@
     saveScore: async (name, score) => {
       try {
         await addDoc(collection(db, "scores"), { name: name || "익명", score: Math.floor(score), country: userCountry, flag: userFlag, timestamp: Date.now() });
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) {}
     }
   };
 </script>
@@ -191,30 +187,31 @@
   const miniCanvas = document.getElementById("minimapCanvas");
   const miniCtx = miniCanvas.getContext("2d");
 
-  // 드릴 스펙 4종
   const DRILL_TYPES = [
-    { name: "스피디", moveSpd: 7.5, digSpd: 1.0, color: "#ffb703" },
-    { name: "헤비", moveSpd: 3.5, digSpd: 2.2, color: "#e63946" },
-    { name: "마그넷", moveSpd: 5.5, digSpd: 1.4, color: "#4cc9f0" },
-    { name: "니트로", moveSpd: 9.0, digSpd: 1.8, color: "#7209b7" }
+    { name: "스피디", moveSpd: 8.5, digSpd: 1.1, mainColor: "#ffb703", subColor: "#fb8500", eyeColor: "#023e8a" },
+    { name: "헤비", moveSpd: 4.2, digSpd: 2.6, mainColor: "#d90429", subColor: "#780000", eyeColor: "#ffea00" },
+    { name: "마그넷", moveSpd: 6.2, digSpd: 1.5, mainColor: "#00b4d8", subColor: "#0077b6", eyeColor: "#70e000" },
+    { name: "니트로", moveSpd: 10.0, digSpd: 2.0, mainColor: "#7209b7", subColor: "#3a0ca3", eyeColor: "#f72585" }
   ];
   let selectedDrillIdx = 0;
 
-  // 광물 속성 (경도 정의)
+  // 광물별 정밀 도트 비주얼 정의
   const MINERALS = {
-    MUD: { name: "진흙", color: "#6b4f3b", hp: 15, spdMult: 1.0 },
-    ROCK: { name: "암석", color: "#5a5050", hp: 35, spdMult: 1.0 },
-    OIL: { name: "기름", color: "#1c1917", hp: 20, spdMult: 0.35 },
-    METAL: { name: "금속", color: "#94a3b8", hp: 70, spdMult: 1.0 },
-    DIAMOND: { name: "다이아", color: "#38bdf8", hp: 120, spdMult: 1.0 },
-    ADAMANT: { name: "아다만", color: "#6d28d9", hp: 220, spdMult: 1.0 }
+    MUD: { name: "진흙", base: "#58311e", dark: "#3a1e12", light: "#78462a", hp: 16, spdMult: 1.0, type: "mud" },
+    ROCK: { name: "일반암석", base: "#4a4e54", dark: "#2c2e33", light: "#6e737c", hp: 38, spdMult: 1.0, type: "rock" },
+    OIL: { name: "기름(감속)", base: "#17171c", dark: "#09090b", light: "#2c2c36", hp: 22, spdMult: 0.35, type: "oil" },
+    METAL: { name: "금속", base: "#71798a", dark: "#434856", light: "#a3abbd", hp: 80, spdMult: 1.0, type: "metal" },
+    DIAMOND: { name: "다이아몬드", base: "#1b6f8a", dark: "#0f3e4e", light: "#48cae4", hp: 135, spdMult: 1.0, type: "diamond" },
+    ADAMANT: { name: "아다만타이드", base: "#4a1259", dark: "#26062f", light: "#8324a3", hp: 240, spdMult: 1.0, type: "adamant" }
   };
 
   let gameState = "LOBBY";
-  let player = { x: 240, y: 150, width: 34, height: 46, targetX: 240, hp: 100, depth: 0, currentLayer: 0 };
+  let player = { x: 220, y: 160, width: 38, height: 56, targetX: 220, depth: 0 };
   let layers = [];
+  let particles = [];
   let cameraY = 0;
-  let scrollSpeed = 1.2;
+  let scrollSpeed = 1.3;
+  let animTick = 0;
 
   function selectDrill(idx) {
     selectedDrillIdx = idx;
@@ -226,26 +223,25 @@
   function startGame() {
     document.getElementById("lobbyScreen").style.display = "none";
     gameState = "PLAY";
-    player.x = 240;
-    player.targetX = 240;
+    player.x = 220;
+    player.targetX = 220;
     player.depth = 0;
     layers = [];
+    particles = [];
     cameraY = 0;
-    generateLayers(0, 30);
+    generateLayers(0, 35);
     requestAnimationFrame(gameLoop);
   }
 
-  // 3겹 지층 + 2겹 빈 공간 생성
   function generateLayers(startIdx, count) {
     const laneWidth = canvas.width / 3;
     for (let i = 0; i < count; i++) {
       let idx = startIdx + i;
-      let patternIdx = idx % 5; // 0,1,2는 지층 / 3,4는 빈공간
-      let layerY = idx * 90 + 350;
+      let patternIdx = idx % 5; // 0,1,2는 3겹 지층 / 3,4는 2겹 빈공간
+      let layerY = idx * 95 + 340;
 
       if (patternIdx < 3) {
         let mineralTypes = [pickMineral(), pickMineral(), pickMineral()];
-        // 힌트 스파크(1/3 확률로 강한 블록에 위험 신호)
         let hintLane = Math.floor(Math.random() * 3);
         layers.push({
           idx: idx,
@@ -268,71 +264,96 @@
     if (r < 0.25) return MINERALS.MUD;
     if (r < 0.55) return MINERALS.ROCK;
     if (r < 0.70) return MINERALS.OIL;
-    if (r < 0.85) return MINERALS.METAL;
-    if (r < 0.95) return MINERALS.DIAMOND;
+    if (r < 0.84) return MINERALS.METAL;
+    if (r < 0.94) return MINERALS.DIAMOND;
     return MINERALS.ADAMANT;
   }
 
-  // 터치 조작 (좌/우 이동)
-  canvas.addEventListener("pointerdown", (e) => {
+  // 조작 (화면 탭 / 스와이프)
+  canvas.addEventListener("pointerdown", handlePointer);
+  canvas.addEventListener("pointermove", (e) => { if (e.buttons > 0) handlePointer(e); });
+
+  function handlePointer(e) {
     if (gameState !== "PLAY") return;
     const rect = canvas.getBoundingClientRect();
     const touchX = (e.clientX - rect.left) * (canvas.width / rect.width);
     player.targetX = touchX;
-  });
+  }
 
   let lastPosUpdate = 0;
 
   function update() {
     if (gameState !== "PLAY") return;
+    animTick++;
 
     const drill = DRILL_TYPES[selectedDrillIdx];
-
-    // 좌우 부드러운 이동
-    player.x += (player.targetX - player.x) * (drill.moveSpd * 0.04);
+    player.x += (player.targetX - player.x) * (drill.moveSpd * 0.038);
     player.x = Math.max(30, Math.min(canvas.width - 30, player.x));
 
-    // 기본 지층 상승 속도
-    scrollSpeed = 1.6 + (player.depth / 1000) * 0.8;
+    scrollSpeed = 1.65 + (player.depth / 1200) * 0.9;
     cameraY += scrollSpeed;
     player.depth = cameraY / 10;
 
-    // 현재 플레이어 충돌 지층 검사
-    let playerHeadY = cameraY + player.y + player.height / 2;
+    let drillTipY = cameraY + player.y + player.height / 2;
 
     layers.forEach(layer => {
-      if (!layer.isEmpty && Math.abs(layer.y - playerHeadY) < 35) {
+      if (!layer.isEmpty && Math.abs(layer.y - drillTipY) < 40) {
         let lane = Math.floor(player.x / (canvas.width / 3));
         let block = layer.blocks[lane];
 
         if (block && block.curHp > 0) {
           let digPower = drill.digSpd * block.min.spdMult;
           block.curHp -= digPower;
-          // 단단해서 못 뚫고 지층이 플레이어를 상단 천장 밖으로 밀어내면 사망
+
+          // 굴착 시 파편 파티클 생성
+          spawnSparks(player.x, drillTipY, block.min.light);
+
           if (block.curHp > 0) {
-            player.y -= scrollSpeed * 0.9;
+            player.y -= scrollSpeed * 0.95; // 단단해서 못 뚫으면 위로 밀림
           }
         }
       }
     });
 
-    // 천장에 압사당하면 게임오버
-    if (player.y < 30) {
+    // 천장 압사 판정
+    if (player.y < 35) {
       gameOver();
-    } else if (player.y < 150) {
-      player.y += 0.8; // 원래 위치로 복귀
+    } else if (player.y < 160) {
+      player.y += 0.9;
     }
 
-    // 새 지층 추가
+    // 파티클 갱신
+    for (let i = particles.length - 1; i >= 0; i--) {
+      let p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life--;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+
+    // 지층 연속 생성
     const lastLayer = layers[layers.length - 1];
-    if (lastLayer.y < cameraY + canvas.height + 400) {
+    if (lastLayer.y < cameraY + canvas.height + 450) {
       generateLayers(lastLayer.idx + 1, 15);
     }
 
-    // Firebase 실시간 위치 보고 (1초 주기)
     if (Date.now() - lastPosUpdate > 1000) {
       lastPosUpdate = Date.now();
       if (window.fb) window.fb.updatePosition(player.depth);
+    }
+  }
+
+  function spawnSparks(x, y, color) {
+    for (let i = 0; i < 3; i++) {
+      particles.push({
+        x: x + (Math.random() - 0.5) * 20,
+        y: y + (Math.random() - 0.5) * 8,
+        vx: (Math.random() - 0.5) * 5,
+        vy: -Math.random() * 4 - 1,
+        color: color,
+        size: Math.random() * 3 + 2,
+        life: 14
+      });
     }
   }
 
@@ -350,88 +371,210 @@
     gameState = "LOBBY";
   }
 
+  /* --- 픽셀 아트 렌더링 시스템 --- */
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 배경 암벽
-    ctx.fillStyle = "#1c1917";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // 지하 배경 암벽 질감
+    drawBackgroundRock();
 
     ctx.save();
     ctx.translate(0, -cameraY);
 
-    // 지층 및 블록 렌더링
+    // 지층 렌더링
     layers.forEach(layer => {
       if (layer.isEmpty) {
-        // 빈 공간 점선 가이드
-        ctx.strokeStyle = "rgba(255,255,255,0.05)";
-        ctx.strokeRect(0, layer.y, canvas.width, 80);
+        // 빈 공간: 가이드 먼지 효과
+        ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
+        ctx.fillRect(8, layer.y + 10, canvas.width - 16, 65);
       } else {
-        layer.blocks.forEach(block => {
+        layer.blocks.forEach((block, lIdx) => {
           if (block.curHp > 0) {
-            ctx.fillStyle = block.min.color;
-            ctx.fillRect(block.x + 4, layer.y, block.width - 8, 70);
-
-            // 광물 이름 및 HP 표시
-            ctx.fillStyle = "#fff";
-            ctx.font = "bold 12px monospace";
-            ctx.fillText(`${block.min.name}`, block.x + 12, layer.y + 25);
-
-            // HP 바
-            let hpRatio = block.curHp / block.maxHp;
-            ctx.fillStyle = "rgba(0,0,0,0.5)";
-            ctx.fillRect(block.x + 12, layer.y + 40, block.width - 24, 6);
-            ctx.fillStyle = "#ffba08";
-            ctx.fillRect(block.x + 12, layer.y + 40, (block.width - 24) * hpRatio, 6);
-
-            // 위험/스파크 힌트
-            if (block.spark && Math.random() < 0.4) {
-              ctx.fillStyle = "#ff0054";
-              ctx.fillText("⚡위험", block.x + block.width - 50, layer.y + 25);
-            }
+            drawPixelMineralBlock(block, layer.y, lIdx);
           }
         });
       }
     });
 
-    // 플레이어 드릴 본체
-    let curDrill = DRILL_TYPES[selectedDrillIdx];
-    ctx.fillStyle = curDrill.color;
-    ctx.fillRect(player.x - 16, cameraY + player.y - 20, 32, 40);
+    // 파편 파티클 렌더링
+    particles.forEach(p => {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x, p.y, p.size, p.size);
+    });
 
-    // 드릴 날 (회전 진동 효과)
-    ctx.fillStyle = "#e2e8f0";
-    ctx.beginPath();
-    let vibrate = (Math.random() - 0.5) * 4;
-    ctx.moveTo(player.x - 14 + vibrate, cameraY + player.y + 20);
-    ctx.lineTo(player.x + 14 + vibrate, cameraY + player.y + 20);
-    ctx.lineTo(player.x, cameraY + player.y + 42);
-    ctx.closePath();
-    ctx.fill();
+    // 드릴 로봇 캐릭터 렌더링
+    drawPixelDrillRobot(player.x, cameraY + player.y);
 
     ctx.restore();
 
-    // 상단 압착 경고 천장
-    ctx.fillStyle = "#d00000";
-    ctx.fillRect(0, 0, canvas.width, 16);
+    // 상단 마그마/압착 천장 연출
+    drawCeilingHazard();
 
-    // 미니맵 그리기
+    // 미니맵
     drawMinimap();
   }
 
+  function drawBackgroundRock() {
+    ctx.fillStyle = "#120e16";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 수직 갱도 측면 프레임 벽
+    ctx.fillStyle = "#1e1824";
+    ctx.fillRect(0, 0, 10, canvas.height);
+    ctx.fillRect(canvas.width - 10, 0, 10, canvas.height);
+
+    ctx.fillStyle = "#0d0a10";
+    ctx.fillRect(10, 0, 3, canvas.height);
+    ctx.fillRect(canvas.width - 13, 0, 3, canvas.height);
+  }
+
+  function drawPixelMineralBlock(block, y, lane) {
+    const bx = block.x + 6;
+    const bw = block.width - 12;
+    const bh = 76;
+    const m = block.min;
+
+    // 본체 베이스
+    ctx.fillStyle = m.base;
+    ctx.fillRect(bx, y, bw, bh);
+
+    // 도트 텍스처 & 하이라이트/음영
+    ctx.fillStyle = m.light;
+    ctx.fillRect(bx, y, bw, 4); // 상단 테두리
+    ctx.fillRect(bx, y, 4, bh); // 좌측 테두리
+
+    ctx.fillStyle = m.dark;
+    ctx.fillRect(bx, y + bh - 6, bw, 6); // 하단 그림자
+    ctx.fillRect(bx + bw - 5, y, 5, bh); // 우측 그림자
+
+    // 광물별 특수 도트 패턴
+    if (m.type === "rock") {
+      ctx.fillStyle = m.dark;
+      ctx.fillRect(bx + 16, y + 18, 18, 12);
+      ctx.fillRect(bx + 54, y + 36, 24, 16);
+      ctx.fillStyle = m.light;
+      ctx.fillRect(bx + 18, y + 16, 8, 4);
+    } else if (m.type === "diamond") {
+      ctx.fillStyle = "#caf0f8";
+      ctx.fillRect(bx + 25, y + 20, 10, 10);
+      ctx.fillRect(bx + 68, y + 35, 12, 12);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(bx + 27, y + 22, 4, 4);
+      ctx.fillRect(bx + 70, y + 37, 4, 4);
+    } else if (m.type === "metal") {
+      ctx.fillStyle = "#cbd5e1";
+      ctx.fillRect(bx + 10, y + 15, bw - 20, 4);
+      ctx.fillRect(bx + 10, y + 38, bw - 20, 4);
+    } else if (m.type === "oil") {
+      ctx.fillStyle = "#383845";
+      ctx.fillRect(bx + 15, y + 15, 30, 8);
+      ctx.fillRect(bx + 55, y + 25, 38, 8);
+    } else if (m.type === "adamant") {
+      ctx.fillStyle = "#c77dff";
+      ctx.fillRect(bx + 20, y + 18, 14, 14);
+      ctx.fillRect(bx + 62, y + 32, 16, 16);
+      ctx.fillStyle = "#e0aaff";
+      ctx.fillRect(bx + 23, y + 20, 6, 6);
+    }
+
+    // HP 게이지 바 (부서짐 진행도)
+    let hpRatio = block.curHp / block.maxHp;
+    ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+    ctx.fillRect(bx + 10, y + bh - 14, bw - 20, 7);
+    ctx.fillStyle = (hpRatio > 0.4) ? "#ffb703" : "#d00000";
+    ctx.fillRect(bx + 10, y + bh - 14, (bw - 20) * hpRatio, 7);
+
+    // 광물 텍스트
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 11px monospace";
+    ctx.shadowColor = "#000";
+    ctx.shadowBlur = 3;
+    ctx.fillText(m.name, bx + 12, y + 22);
+    ctx.shadowBlur = 0;
+
+    // 힌트 스파크 (위험/대박 신호)
+    if (block.spark) {
+      let flicker = Math.sin(animTick * 0.25);
+      if (flicker > 0) {
+        ctx.fillStyle = "#ff0054";
+        ctx.font = "bold 12px monospace";
+        ctx.fillText("⚠ 찌릿!", bx + bw - 52, y + 22);
+      }
+    }
+  }
+
+  function drawPixelDrillRobot(x, y) {
+    const drill = DRILL_TYPES[selectedDrillIdx];
+    const wobble = Math.sin(animTick * 0.6) * 1.5;
+
+    // 1. 드릴 로봇 몸통 (헤비 장갑)
+    ctx.fillStyle = drill.mainColor;
+    ctx.fillRect(x - 18, y - 28, 36, 32);
+
+    ctx.fillStyle = drill.subColor;
+    ctx.fillRect(x - 14, y - 24, 28, 8);
+    ctx.fillRect(x - 18, y + 4, 36, 4);
+
+    // 로봇 바이저(눈)
+    ctx.fillStyle = drill.eyeColor;
+    ctx.fillRect(x - 10, y - 14, 20, 6);
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(x - 6, y - 13, 4, 3);
+
+    // 좌우 부스터 날개
+    ctx.fillStyle = "#495057";
+    ctx.fillRect(x - 24, y - 20, 6, 18);
+    ctx.fillRect(x + 18, y - 20, 6, 18);
+
+    // 2. 대형 드릴 날 (고속 회전 애니메이션)
+    const tipY = y + 36;
+    ctx.fillStyle = "#adb5bd";
+    ctx.beginPath();
+    ctx.moveTo(x - 16, y + 8);
+    ctx.lineTo(x + 16, y + 8);
+    ctx.lineTo(x + wobble, tipY);
+    ctx.closePath();
+    ctx.fill();
+
+    // 드릴 나선 홈 도트 라인
+    ctx.strokeStyle = "#343a40";
+    ctx.lineWidth = 3;
+    let spiralOffset = (animTick * 4) % 18;
+    ctx.beginPath();
+    ctx.moveTo(x - 14, y + 10 + (spiralOffset * 0.4));
+    ctx.lineTo(x + 10, y + 20 + (spiralOffset * 0.4));
+    ctx.stroke();
+
+    // 드릴 끝 스파크
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(x - 2 + wobble, tipY - 2, 4, 4);
+  }
+
+  function drawCeilingHazard() {
+    // 천장 프레스 위험 연출
+    ctx.fillStyle = "#780000";
+    ctx.fillRect(0, 0, canvas.width, 16);
+    ctx.fillStyle = (animTick % 20 < 10) ? "#ff0054" : "#ffb703";
+    for (let i = 0; i < canvas.width; i += 24) {
+      ctx.beginPath();
+      ctx.moveTo(i, 16);
+      ctx.lineTo(i + 12, 28);
+      ctx.lineTo(i + 24, 16);
+      ctx.fill();
+    }
+  }
+
   function drawMinimap() {
-    miniCtx.fillStyle = "#111";
+    miniCtx.fillStyle = "#0c0a10";
     miniCtx.fillRect(0, 0, miniCanvas.width, miniCanvas.height);
 
-    let mapRange = 300; // 미니맵 표시 범위
+    let mapRange = 260;
     let curM = player.depth;
-
-    // 내 위치 (반짝이는 점)
     let myY = (miniCanvas.height / 2);
-    miniCtx.fillStyle = (Date.now() % 400 < 200) ? "#00f5d4" : "#ffffff";
-    miniCtx.beginPath();
-    miniCtx.arc(miniCanvas.width / 2, myY, 4, 0, Math.PI * 2);
-    miniCtx.fill();
+
+    // 내 드릴 위치 (반짝이는 코어 도트)
+    miniCtx.fillStyle = (animTick % 16 < 8) ? "#00f5d4" : "#ffffff";
+    miniCtx.fillRect(miniCanvas.width / 2 - 3, myY - 3, 7, 7);
 
     // 다른 플레이어 위치
     if (window.otherPlayers) {
@@ -440,9 +583,7 @@
         let otherY = myY + (diff / mapRange) * miniCanvas.height;
         if (otherY >= 0 && otherY <= miniCanvas.height) {
           miniCtx.fillStyle = "#ff0054";
-          miniCtx.beginPath();
-          miniCtx.arc(miniCanvas.width / 2 + 12, otherY, 3, 0, Math.PI * 2);
-          miniCtx.fill();
+          miniCtx.fillRect(miniCanvas.width / 2 + 10, otherY - 2, 5, 5);
         }
       });
     }
