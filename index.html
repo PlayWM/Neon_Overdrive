@@ -3,6 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<details>
+<summary><b>전체 코드 보기 / 숨기기</b></summary>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Neon Flight: Overdrive</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
@@ -32,7 +40,7 @@ const nameInput = document.getElementById("name-input");
 
 const LOGICAL_WIDTH = 450;
 const LOGICAL_HEIGHT = 800;
-const VERSION_STR = "v20261010.OverdriveFinal.01";
+const VERSION_STR = "v20261010.GraphicRestored";
 const FIREBASE_URL = "https://flywm-d0b39-default-rtdb.asia-southeast1.firebasedatabase.app/leaderboard.json";
 const FONT_FAMILY = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Malgun Gothic', sans-serif";
 
@@ -60,7 +68,6 @@ function drawRoundRect(c, x, y, w, h, r) {
 
 function drawStarShape(c, cx, cy, spikes, outerRadius, innerRadius) {
   let rot = Math.PI / 2 * 3;
-  let x = cx, y = cy;
   let step = Math.PI / spikes;
   c.beginPath();
   c.moveTo(cx, cy - outerRadius);
@@ -78,7 +85,6 @@ function drawStarShape(c, cx, cy, spikes, outerRadius, innerRadius) {
   c.closePath();
 }
 
-// 모바일 발열 개선: 정적 성운 배경 오프스크린 캐싱
 const bgOffscreen = document.createElement("canvas");
 bgOffscreen.width = LOGICAL_WIDTH;
 bgOffscreen.height = LOGICAL_HEIGHT;
@@ -118,17 +124,11 @@ let sessionStartTime = performance.now();
 try {
   const tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").toLowerCase();
   const offset = new Date().getTimezoneOffset();
-  if (tz.includes("ho_chi_minh") || tz.includes("hanoi") || tz.includes("bangkok") || offset === -420) {
-    userCountry = "Vietnam";
-  } else if (tz.includes("seoul") || offset === -540) {
-    userCountry = "Korea";
-  } else if (tz.includes("tokyo")) {
-    userCountry = "Japan";
-  } else if (tz.includes("shanghai") || tz.includes("beijing")) {
-    userCountry = "China";
-  } else if (tz.includes("new_york") || tz.includes("los_angeles") || tz.includes("chicago")) {
-    userCountry = "USA";
-  }
+  if (tz.includes("ho_chi_minh") || tz.includes("hanoi") || tz.includes("bangkok") || offset === -420) userCountry = "Vietnam";
+  else if (tz.includes("seoul") || offset === -540) userCountry = "Korea";
+  else if (tz.includes("tokyo")) userCountry = "Japan";
+  else if (tz.includes("shanghai") || tz.includes("beijing")) userCountry = "China";
+  else if (tz.includes("new_york") || tz.includes("los_angeles") || tz.includes("chicago")) userCountry = "USA";
 } catch(e){}
 
 setTimeout(() => {
@@ -321,7 +321,7 @@ function startBGMEngine() {
 }
 
 // =================================================================
-// 4. 게임 데이터 및 벡터 렌더러
+// 4. 게임 데이터 및 고해상도 메카닉 벡터 그래픽 (완전 복원)
 // =================================================================
 const CONFIG = {
   BASE_PLAYER_SPEED: 10.5,
@@ -337,6 +337,7 @@ const CONFIG = {
   BASE_GAUGE_PER_KILL: 2.6
 };
 
+// 플레이어 기체 고해상도 메카닉 렌더러 복원
 function drawVectorPlayer(c, type, color, scale = 1.0, flameHeight = 0) {
   c.save();
   c.scale(scale, scale);
@@ -366,20 +367,35 @@ function drawVectorPlayer(c, type, color, scale = 1.0, flameHeight = 0) {
     c.fill();
   };
 
-  if (type === 2) { drawThruster(-11, 14, 6); drawThruster(11, 14, 6); }
-  else { drawThruster(-6, 13, 5); drawThruster(6, 13, 5); }
+  if (type === 2) {
+    drawThruster(-11, 14, 6);
+    drawThruster(11, 14, 6);
+  } else {
+    drawThruster(-6, 13, 5);
+    drawThruster(6, 13, 5);
+  }
 
   const darkHull = "#080d1a";
   const midHull = "#131e33";
   const lightHull = "#1c2c4a";
 
   if (type === 0) {
-    c.fillStyle = darkHull; c.strokeStyle = color; c.lineWidth = 1.5;
+    c.fillStyle = darkHull;
+    c.strokeStyle = color;
+    c.lineWidth = 1.5;
     c.beginPath();
-    c.moveTo(0, -25); c.lineTo(7, -10); c.lineTo(24, 10); c.lineTo(21, 16);
-    c.lineTo(12, 13); c.lineTo(0, 18); c.lineTo(-12, 13); c.lineTo(-21, 16);
-    c.lineTo(-24, 10); c.lineTo(-7, -10);
-    c.closePath(); c.fill(); c.stroke();
+    c.moveTo(0, -25);
+    c.lineTo(7, -10);
+    c.lineTo(24, 10);
+    c.lineTo(21, 16);
+    c.lineTo(12, 13);
+    c.lineTo(0, 18);
+    c.lineTo(-12, 13);
+    c.lineTo(-21, 16);
+    c.lineTo(-24, 10);
+    c.lineTo(-7, -10);
+    c.closePath();
+    c.fill(); c.stroke();
 
     c.fillStyle = midHull;
     c.beginPath();
@@ -387,49 +403,115 @@ function drawVectorPlayer(c, type, color, scale = 1.0, flameHeight = 0) {
     c.lineTo(0, 14); c.lineTo(-8, 10); c.lineTo(-16, 8); c.lineTo(-5, -8);
     c.closePath(); c.fill();
 
+    c.strokeStyle = "rgba(255, 255, 255, 0.45)";
+    c.lineWidth = 0.8;
+    c.beginPath();
+    c.moveTo(7, -8); c.lineTo(19, 12);
+    c.moveTo(-7, -8); c.lineTo(-19, 12);
+    c.moveTo(12, 2); c.lineTo(18, 5);
+    c.moveTo(-12, 2); c.lineTo(-18, 5);
+    c.stroke();
+
+    c.fillStyle = lightHull;
+    c.fillRect(-4, 0, 2, 7);
+    c.fillRect(2, 0, 2, 7);
+
     c.fillStyle = "#00f5ff";
     c.beginPath();
     c.moveTo(0, -18); c.lineTo(3.5, -6); c.lineTo(0, 2); c.lineTo(-3.5, -6);
     c.closePath(); c.fill();
+    c.strokeStyle = "#ffffff";
+    c.lineWidth = 1;
+    c.stroke();
+
     c.fillStyle = "#ffffff";
-    c.beginPath(); c.moveTo(0, -17); c.lineTo(1.5, -8); c.lineTo(0, -3); c.closePath(); c.fill();
+    c.beginPath();
+    c.moveTo(0, -17); c.lineTo(1.5, -8); c.lineTo(0, -3);
+    c.closePath(); c.fill();
 
   } else if (type === 1) {
-    c.fillStyle = darkHull; c.strokeStyle = color; c.lineWidth = 1.8;
+    c.fillStyle = darkHull;
+    c.strokeStyle = color;
+    c.lineWidth = 1.8;
     c.beginPath();
-    c.moveTo(0, -23); c.lineTo(14, -12); c.lineTo(24, -2); c.lineTo(22, 16);
-    c.lineTo(11, 14); c.lineTo(0, 19); c.lineTo(-11, 14); c.lineTo(-22, 16);
-    c.lineTo(-24, -2); c.lineTo(-14, -12);
-    c.closePath(); c.fill(); c.stroke();
+    c.moveTo(0, -23);
+    c.lineTo(14, -12);
+    c.lineTo(24, -2);
+    c.lineTo(22, 16);
+    c.lineTo(11, 14);
+    c.lineTo(0, 19);
+    c.lineTo(-11, 14);
+    c.lineTo(-22, 16);
+    c.lineTo(-24, -2);
+    c.lineTo(-14, -12);
+    c.closePath();
+    c.fill(); c.stroke();
 
     c.fillStyle = "#334155";
-    c.fillRect(-16, -18, 3.5, 14); c.fillRect(12.5, -18, 3.5, 14);
+    c.fillRect(-16, -18, 3.5, 14);
+    c.fillRect(12.5, -18, 3.5, 14);
+    c.strokeStyle = color;
+    c.strokeRect(-16, -18, 3.5, 14);
+    c.strokeRect(12.5, -18, 3.5, 14);
+
     c.fillStyle = midHull;
     c.beginPath();
     c.moveTo(0, -18); c.lineTo(8, -6); c.lineTo(8, 8); c.lineTo(0, 13);
     c.lineTo(-8, 8); c.lineTo(-8, -6);
     c.closePath(); c.fill();
+    c.strokeStyle = "rgba(255, 255, 255, 0.4)";
+    c.lineWidth = 0.9;
+    c.stroke();
+
+    c.strokeStyle = "#ff2244";
+    c.lineWidth = 1.2;
+    for (let gy = -2; gy <= 6; gy += 3) {
+      c.beginPath(); c.moveTo(-5, gy); c.lineTo(5, gy);
+      c.stroke();
+    }
     c.fillStyle = "#ff2244";
     c.beginPath(); c.arc(0, -10, 4, 0, Math.PI * 2); c.fill();
+    c.fillStyle = "#ffffff";
+    c.beginPath(); c.arc(0, -10, 1.5, 0, Math.PI * 2); c.fill();
 
   } else if (type === 2) {
     const drawFuselage = (fx) => {
-      c.fillStyle = darkHull; c.strokeStyle = color; c.lineWidth = 1.5;
+      c.fillStyle = darkHull;
+      c.strokeStyle = color;
+      c.lineWidth = 1.5;
       c.beginPath();
       c.moveTo(fx, -26); c.lineTo(fx + 5, -10); c.lineTo(fx + 6, 12);
       c.lineTo(fx - 1, 15); c.lineTo(fx - 6, 12); c.lineTo(fx - 5, -10);
       c.closePath(); c.fill(); c.stroke();
+
       c.fillStyle = midHull;
       c.fillRect(fx - 3, -12, 6, 18);
+      c.strokeStyle = "rgba(255, 255, 255, 0.45)";
+      c.lineWidth = 0.8;
+      c.beginPath(); c.moveTo(fx, -20); c.lineTo(fx, 8); c.moveTo(fx - 4, -2); c.lineTo(fx + 4, -2); c.stroke();
+
+      c.fillStyle = "#ffffff";
+      c.beginPath(); c.arc(fx, -18, 1.8, 0, Math.PI * 2); c.fill();
+      c.fillStyle = color;
+      c.beginPath(); c.arc(fx, -18, 1, 0, Math.PI * 2); c.fill();
     };
-    drawFuselage(-11); drawFuselage(11);
+    drawFuselage(-11);
+    drawFuselage(11);
+
     c.fillStyle = "#1e293b";
     c.fillRect(-6, -4, 12, 14);
+    c.strokeStyle = "#475569";
+    c.lineWidth = 1;
+    c.strokeRect(-6, -4, 12, 14);
     c.fillStyle = "#00ff66";
     c.fillRect(-2, 0, 4, 6);
+    c.fillStyle = "#ffffff";
+    c.fillRect(-1, 2, 2, 2);
 
   } else if (type === 4) {
-    c.fillStyle = "#181305"; c.strokeStyle = color; c.lineWidth = 1.8;
+    c.fillStyle = "#181305";
+    c.strokeStyle = color;
+    c.lineWidth = 1.8;
     c.beginPath();
     c.moveTo(0, -28); c.lineTo(10, -14); c.lineTo(26, 6); c.lineTo(18, 18);
     c.lineTo(8, 12); c.lineTo(0, 20); c.lineTo(-8, 12); c.lineTo(-18, 18);
@@ -442,24 +524,136 @@ function drawVectorPlayer(c, type, color, scale = 1.0, flameHeight = 0) {
     c.lineTo(0, 14); c.lineTo(-6, 9); c.lineTo(-17, 8); c.lineTo(-8, -8);
     c.closePath(); c.fill();
 
+    c.strokeStyle = "rgba(255, 235, 120, 0.6)";
+    c.lineWidth = 1;
+    c.beginPath();
+    c.moveTo(0, -18); c.lineTo(16, 6); c.moveTo(0, -18); c.lineTo(-16, 6);
+    c.moveTo(0, -4); c.lineTo(10, 14); c.moveTo(0, -4); c.lineTo(-10, 14);
+    c.stroke();
+
     c.fillStyle = "#ffd700";
     c.beginPath();
     c.moveTo(0, -11); c.lineTo(6, 0); c.lineTo(0, 10); c.lineTo(-6, 0);
     c.closePath(); c.fill();
+    c.strokeStyle = "#ffffff";
+    c.lineWidth = 1.2;
+    c.stroke();
+    c.fillStyle = "#ffffff";
+    c.beginPath(); c.arc(0, 0, 2.5, 0, Math.PI * 2); c.fill();
 
   } else {
-    c.fillStyle = darkHull; c.strokeStyle = color; c.lineWidth = 1.6;
+    c.fillStyle = darkHull;
+    c.strokeStyle = color;
+    c.lineWidth = 1.6;
     c.beginPath();
     c.moveTo(0, -24); c.lineTo(18, 12); c.lineTo(0, 6); c.lineTo(-18, 12);
     c.closePath(); c.fill();
+    c.strokeStyle = "rgba(255, 255, 255, 0.5)";
+    c.lineWidth = 0.8;
+    c.beginPath(); c.moveTo(0, -16); c.lineTo(10, 6); c.moveTo(0, -16); c.lineTo(-10, 6);
+    c.stroke();
   }
   c.restore();
 }
 
-// 체력이 많은 엘리트 적: 거대 암석/혜성 파편 형태 (원형, 타원형, 각진 육각형, 각진 삼각형 등 4종)
+// 일반 적 4종 정밀 메카닉 벡터 그래픽 복원
+function drawVectorRegularEnemy(c, subType) {
+  c.save();
+  c.lineJoin = "round";
+  c.lineCap = "round";
+
+  if (subType === 0) {
+    c.shadowColor = "#00f5ff"; c.shadowBlur = 4;
+    c.fillStyle = "#0a0d18"; c.strokeStyle = "#00f5ff"; c.lineWidth = 1.6;
+    c.beginPath();
+    c.moveTo(0, 24); c.lineTo(20, -10); c.lineTo(12, -7); c.lineTo(0, -16); c.lineTo(-12, -7); c.lineTo(-20, -10);
+    c.closePath(); c.fill(); c.stroke();
+
+    c.fillStyle = "#19223c";
+    c.beginPath();
+    c.moveTo(0, 17); c.lineTo(14, -5); c.lineTo(6, -2); c.lineTo(0, -9); c.lineTo(-6, -2); c.lineTo(-14, -5);
+    c.closePath(); c.fill();
+
+    c.fillStyle = "#00f5ff";
+    c.fillRect(-10, 4, 2.5, 8); c.fillRect(7.5, 4, 2.5, 8);
+
+    c.strokeStyle = "rgba(0, 245, 255, 0.65)"; c.lineWidth = 0.9;
+    c.beginPath();
+    c.moveTo(0, 18); c.lineTo(12, -3); c.moveTo(0, 18); c.lineTo(-12, -3); c.stroke();
+
+    c.fillStyle = "#ffffff";
+    c.fillRect(-3, 0, 2, 4); c.fillRect(1, 0, 2, 4);
+
+  } else if (subType === 1) {
+    c.shadowColor = "#ff4400"; c.shadowBlur = 4;
+    c.fillStyle = "#1a0808"; c.strokeStyle = "#ff4400"; c.lineWidth = 1.7;
+    c.beginPath();
+    c.moveTo(0, 22); c.lineTo(12, 10); c.lineTo(22, 4); c.lineTo(16, -14); c.lineTo(0, -7); c.lineTo(-16, -14); c.lineTo(-22, 4); c.lineTo(-12, 10);
+    c.closePath(); c.fill(); c.stroke();
+
+    c.fillStyle = "#33130c";
+    c.beginPath();
+    c.moveTo(0, 15); c.lineTo(9, 6); c.lineTo(14, -6); c.lineTo(0, -3); c.lineTo(-14, -6); c.lineTo(-9, 6);
+    c.closePath(); c.fill();
+
+    c.fillStyle = "#64748b";
+    c.fillRect(-15, -4, 3, 12); c.fillRect(12, -4, 3, 12);
+    c.strokeStyle = "#ff7700";
+    c.strokeRect(-15, -4, 3, 12); c.strokeRect(12, -4, 3, 12);
+
+    c.strokeStyle = "#ffaa00"; c.lineWidth = 1.0;
+    for (let y = 0; y <= 8; y += 3) {
+      c.beginPath(); c.moveTo(-5, y); c.lineTo(5, y); c.stroke();
+    }
+    c.fillStyle = "#ffff00"; c.beginPath(); c.arc(0, -2, 2.8, 0, Math.PI * 2); c.fill();
+
+  } else if (subType === 2) {
+    c.shadowColor = "#00ffaa"; c.shadowBlur = 4;
+    c.fillStyle = "#0c151c"; c.strokeStyle = "#00ffaa"; c.lineWidth = 1.8;
+    c.beginPath();
+    c.moveTo(0, 24); c.lineTo(18, 10); c.lineTo(18, -10); c.lineTo(0, -22); c.lineTo(-18, -10); c.lineTo(-18, 10);
+    c.closePath(); c.fill(); c.stroke();
+
+    c.fillStyle = "#162835";
+    c.beginPath();
+    c.moveTo(0, 17); c.lineTo(12, 7); c.lineTo(12, -7); c.lineTo(0, -15); c.lineTo(-12, -7); c.lineTo(-12, 7);
+    c.closePath(); c.fill();
+
+    c.fillStyle = "#223f54"; c.fillRect(-16, -5, 3, 10); c.fillRect(13, -5, 3, 10);
+
+    c.strokeStyle = "rgba(0, 255, 170, 0.6)"; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(-8, -4); c.lineTo(8, -4); c.moveTo(-8, 4); c.lineTo(8, 4); c.stroke();
+
+    c.fillStyle = "#00ffaa"; c.beginPath(); c.arc(0, 0, 4, 0, Math.PI * 2); c.fill();
+    c.fillStyle = "#ffffff"; c.beginPath(); c.arc(0, 0, 1.8, 0, Math.PI * 2); c.fill();
+
+  } else {
+    c.shadowColor = "#c832ff"; c.shadowBlur = 4;
+    c.fillStyle = "#180a1e"; c.strokeStyle = "#c832ff"; c.lineWidth = 1.6;
+    c.beginPath();
+    c.moveTo(0, 24); c.lineTo(8, 11); c.lineTo(23, 17); c.lineTo(16, -14); c.lineTo(0, -6); c.lineTo(-16, -14); c.lineTo(-23, 17); c.lineTo(-8, 11);
+    c.closePath(); c.fill(); c.stroke();
+
+    c.fillStyle = "#2d1338";
+    c.beginPath();
+    c.moveTo(0, 16); c.lineTo(6, 6); c.lineTo(15, 10); c.lineTo(10, -6); c.lineTo(0, 0); c.lineTo(-10, -6); c.lineTo(-15, 10); c.lineTo(-6, 6);
+    c.closePath(); c.fill();
+
+    c.strokeStyle = "#00f5ff"; c.lineWidth = 1.2;
+    c.beginPath(); c.moveTo(21, 14); c.lineTo(15, -12); c.moveTo(-21, 14); c.lineTo(-15, -12); c.stroke();
+
+    c.fillStyle = "#c832ff"; c.fillRect(-5, -9, 3, 3); c.fillRect(2, -9, 3, 3);
+
+    c.fillStyle = "#ff00a0"; c.beginPath(); c.arc(0, 4, 3, 0, Math.PI * 2); c.fill();
+    c.fillStyle = "#ffffff"; c.beginPath(); c.arc(0, 4, 1.2, 0, Math.PI * 2); c.fill();
+  }
+  c.restore();
+}
+
+// 체력 많은 엘리트 적: 거대 암석/혜성 파편 형태 (원형, 타원형, 각진 육각형, 각진 삼각형 등 4종 및 분화구)
 function drawVectorEliteAsteroid(c, rockId, curTime) {
   c.save();
-  c.rotate(curTime * 0.45); // 시계 방향 회전
+  c.rotate(curTime * 0.45);
   c.lineJoin = "round";
   c.lineCap = "round";
 
@@ -471,27 +665,27 @@ function drawVectorEliteAsteroid(c, rockId, curTime) {
   c.shadowBlur = 8;
 
   c.beginPath();
-  if (type === 0) { // 울퉁불퉁한 원형
+  if (type === 0) { // 원형 파편
     const pts = [
       [0, -29], [12, -26], [24, -14], [28, 2], [22, 19], [10, 28],
       [-5, 29], [-19, 21], [-29, 7], [-26, -11], [-13, -25]
     ];
     c.moveTo(pts[0][0], pts[0][1]);
     for (let i = 1; i < pts.length; i++) c.lineTo(pts[i][0], pts[i][1]);
-  } else if (type === 1) { // 울퉁불퉁한 타원형
+  } else if (type === 1) { // 타원형 파편
     const pts = [
       [0, -32], [18, -25], [26, 0], [19, 26], [0, 31],
       [-17, 24], [-27, 2], [-18, -24]
     ];
     c.moveTo(pts[0][0], pts[0][1]);
     for (let i = 1; i < pts.length; i++) c.lineTo(pts[i][0], pts[i][1]);
-  } else if (type === 2) { // 각진 육각형
+  } else if (type === 2) { // 각진 육각형 파편
     const pts = [
       [0, -30], [25, -16], [28, 14], [3, 29], [-26, 17], [-24, -16]
     ];
     c.moveTo(pts[0][0], pts[0][1]);
     for (let i = 1; i < pts.length; i++) c.lineTo(pts[i][0], pts[i][1]);
-  } else { // 각진 삼각형
+  } else { // 각진 삼각형 파편
     const pts = [
       [0, -32], [28, 22], [12, 26], [-15, 27], [-28, 18], [-12, -8]
     ];
@@ -502,7 +696,7 @@ function drawVectorEliteAsteroid(c, rockId, curTime) {
   c.fill();
   c.stroke();
 
-  // 표면의 무수한 크레이터(분화구) 렌더링
+  // 표면의 무수한 크레이터(분화구)
   const craters = [
     { x: -10, y: -12, r: 4.8 }, { x: 7, y: -14, r: 3.5 }, { x: 12, y: 3, r: 6.0 },
     { x: -8, y: 10, r: 5.2 }, { x: 9, y: 15, r: 3.8 }, { x: -16, y: -2, r: 4.0 },
@@ -524,40 +718,9 @@ function drawVectorEliteAsteroid(c, rockId, curTime) {
 function drawVectorEnemy(c, designId, isHeavy, curTime) {
   if (isHeavy) {
     drawVectorEliteAsteroid(c, designId, curTime);
-    return;
-  }
-
-  c.save();
-  c.lineJoin = "round";
-  c.lineCap = "round";
-  const subType = designId % 4;
-
-  if (subType === 0) {
-    c.shadowColor = "#00f5ff"; c.shadowBlur = 4;
-    c.fillStyle = "#0a0d18"; c.strokeStyle = "#00f5ff"; c.lineWidth = 1.6;
-    c.beginPath();
-    c.moveTo(0, 24); c.lineTo(20, -10); c.lineTo(12, -7); c.lineTo(0, -16); c.lineTo(-12, -7); c.lineTo(-20, -10);
-    c.closePath(); c.fill(); c.stroke();
-  } else if (subType === 1) {
-    c.shadowColor = "#ff4400"; c.shadowBlur = 4;
-    c.fillStyle = "#1a0808"; c.strokeStyle = "#ff4400"; c.lineWidth = 1.7;
-    c.beginPath();
-    c.moveTo(0, 22); c.lineTo(12, 10); c.lineTo(22, 4); c.lineTo(16, -14); c.lineTo(0, -7); c.lineTo(-16, -14); c.lineTo(-22, 4); c.lineTo(-12, 10);
-    c.closePath(); c.fill(); c.stroke();
-  } else if (subType === 2) {
-    c.shadowColor = "#00ffaa"; c.shadowBlur = 4;
-    c.fillStyle = "#0c151c"; c.strokeStyle = "#00ffaa"; c.lineWidth = 1.8;
-    c.beginPath();
-    c.moveTo(0, 24); c.lineTo(18, 10); c.lineTo(18, -10); c.lineTo(0, -22); c.lineTo(-18, -10); c.lineTo(-18, 10);
-    c.closePath(); c.fill(); c.stroke();
   } else {
-    c.shadowColor = "#c832ff"; c.shadowBlur = 4;
-    c.fillStyle = "#180a1e"; c.strokeStyle = "#c832ff"; c.lineWidth = 1.6;
-    c.beginPath();
-    c.moveTo(0, 24); c.lineTo(8, 11); c.lineTo(23, 17); c.lineTo(16, -14); c.lineTo(0, -6); c.lineTo(-16, -14); c.lineTo(-23, 17); c.lineTo(-8, 11);
-    c.closePath(); c.fill(); c.stroke();
+    drawVectorRegularEnemy(c, designId % 4);
   }
-  c.restore();
 }
 
 function drawVectorBoss(c, curTime) {
@@ -605,7 +768,8 @@ function drawVectorLaserPod(c, lx, ly, muzzleFlashActive, curTime) {
   c.strokeStyle = "#00f5ff";
   c.lineWidth = 1.4;
   c.beginPath();
-  c.moveTo(0, -14); c.lineTo(4, -10); c.lineTo(4, 12); c.lineTo(-4, 12); c.lineTo(-4, -10);
+  c.moveTo(0, -14); c.lineTo(4, -10); c.lineTo(4, 12); c.lineTo(-4, 12);
+  c.lineTo(-4, -10);
   c.closePath(); c.fill(); c.stroke();
 
   const corePulse = Math.sin(curTime * 15) * 0.3 + 0.7;
@@ -669,8 +833,6 @@ class Player {
     return Math.max(0.03, base * reduction);
   }
   getMissileDamage() {
-    // 1레벨 미사일: 체력 약 3의 초기 적을 3번 맞춰야 파괴 (1.05)
-    // 3레벨 도달 시: 초기 적을 한 방에 파괴 (3.2)
     return 1.05 + (Math.max(1, this.missileStat) - 1) * 1.075;
   }
   update(dt, enemiesList, lightningList, bulletsList) {
@@ -680,7 +842,6 @@ class Player {
     if (this.shieldRemain > 0) this.shieldRemain = Math.max(0, this.shieldRemain - dt);
     if (this.frontShieldRemain > 0) this.frontShieldRemain = Math.max(0, this.frontShieldRemain - dt);
 
-    // 유도 미사일 주기적 발사 시스템 (레벨 8 미만: 5초마다 1발씩, 레벨 8 이상: 6초마다 2연발)
     this.missileTimer += dt;
     const fireInterval = (this.missileStat >= 8) ? 6.0 : 5.0;
     if (this.missileTimer >= fireInterval) {
@@ -815,7 +976,6 @@ class Player {
   }
 }
 
-// 신규 유도 미사일 클래스
 class HomingMissile {
   constructor(x, y, vx, vy, dmg) {
     this.x = x; this.y = y; this.vx = vx; this.vy = vy;
@@ -864,15 +1024,13 @@ class HomingMissile {
   }
 }
 
-// 거대 유성/혜성 클래스 (머리 5가지 형태, 5개 무작위 분화구, 꼬리 50% 연장)
 class Meteor {
   constructor(themeIndex, side, spawnY) {
     this.theme = METEOR_THEMES[themeIndex % METEOR_THEMES.length];
     this.side = side;
     this.radius = 24;
-    this.tailLength = 225; // 기존 대비 50% 더 길게 연장
-    this.headShapeType = Math.floor(Math.random() * 5); // 5가지 다채로운 머리 형상
-    // 머리 표면 울퉁불퉁 분화구 5개 무작위 생성
+    this.tailLength = 225;
+    this.headShapeType = Math.floor(Math.random() * 5);
     this.craters = Array.from({ length: 5 }, () => {
       const ang = Math.random() * Math.PI * 2;
       const dist = Math.random() * (this.radius * 0.65);
@@ -937,7 +1095,6 @@ class Meteor {
     ctx.translate(this.x, this.y);
     ctx.rotate(this.coreAngle);
 
-    // 5가지 다양한 비정형 다각형 머리 외형 렌더링
     const r = this.radius;
     ctx.fillStyle = this.theme.core;
     ctx.strokeStyle = this.theme.outer;
@@ -958,7 +1115,6 @@ class Meteor {
     ctx.fill();
     ctx.stroke();
 
-    // 머리 표면 5개 분화구 렌더링
     this.craters.forEach(cr => {
       ctx.fillStyle = "#110408";
       ctx.beginPath();
@@ -1253,7 +1409,7 @@ class Enemy {
     this.designId = designId;
     this.radius = isHeavy ? 30 : (maxHp <= 8 ? 20 : (maxHp <= 18 ? 25 : 30));
     this.hasShield = hasShield;
-    this.shieldHits = 0; // 보호막 적: 20번 피격 시 보호막 파괴 및 격추
+    this.shieldHits = 0;
     this.isHeavy = isHeavy;
     this.isDead = false;
   }
@@ -1600,7 +1756,6 @@ function handlePointerDown(e) {
   } else if (gameState === 1 && player) {
     if (hedgehogLauncher.timeStopTimer <= 0) {
       player.targetX = coords.x;
-      // 터치 위치 대비 위쪽 오프셋을 60px로 축소 (거리 50% 단축)
       player.targetY = Math.max(player.radius + 10, Math.min(LOGICAL_HEIGHT - player.radius - 10, coords.y - 60));
     }
   } else if (gameState === 2 && !randomPickShowcaseActive) {
@@ -1936,7 +2091,7 @@ function safeGameLoop(now) {
 
     if (elapsedShowcase >= 3.0) initBattleState();
 
-  } else if (gameState === 1) { // 2. 인게임 전투 (탑10 HUD 삭제 완료)
+  } else if (gameState === 1) { // 2. 인게임 전투
     const isFrozen = (hedgehogLauncher.timeStopTimer > 0);
     if (isFrozen) {
       hedgehogLauncher.timeStopTimer = Math.max(0, hedgehogLauncher.timeStopTimer - dt);
@@ -1980,14 +2135,14 @@ function safeGameLoop(now) {
       if (elapsed >= 60.0) hpMultiplier = Math.pow(1.3, Math.floor((elapsed - 60.0) / 20.0));
       const calculatedHp = Math.max(1, Math.round((2 + Math.random() * 3) * hpScale * hpMultiplier));
 
-      // 1. 보호막 적 확률 조건 (60초 미만 1%, 60~300초 3%, 300초 이후 30초당 3% 기준 10% 복리증가 / 최대 10%)
+      // 보호막 적 출현 확률
       let shieldProb = 0.01;
       if (elapsed >= 60.0 && elapsed < 300.0) shieldProb = 0.03;
       else if (elapsed >= 300.0) shieldProb = Math.min(0.10, 0.03 * Math.pow(1.10, Math.floor((elapsed - 300.0) / 30.0)));
 
       enemies.push(new Enemy(calculatedHp, CONFIG.BASE_ENEMY_SPEED + Math.min(1.0, elapsed / 180.0) * 3.5, Math.floor(Math.random() * 4), Math.random() < shieldProb, false));
 
-      // 2. 체력 많은 적 (60초 이후 60초 주기 1기 등장, 화면 내 최대 1기 유지, 60초 이후 30초마다 체력 10% 증가, 수직 천천히 이동)
+      // 체력 많은 엘리트 적 (화면 내 최대 1기 유지, 수직 하강)
       if (elapsed >= 60.0) {
         const currentHeavyCount = enemies.filter(e => e.isHeavy && !e.isDead && e.hp > 0).length;
         if (currentHeavyCount === 0) {
@@ -2030,7 +2185,7 @@ function safeGameLoop(now) {
       bossMissiles = bossMissiles.filter(m => m.y < LOGICAL_HEIGHT + 30);
     }
 
-    // 유도 미사일 피격 판정
+    // 유도 미사일 충돌 판정
     for (let mi = homingMissiles.length - 1; mi >= 0; mi--) {
       const m = homingMissiles[mi];
       for (let ei = enemies.length - 1; ei >= 0; ei--) {
@@ -2052,7 +2207,7 @@ function safeGameLoop(now) {
       }
     }
 
-    // 일반 탄환 피격 판정 (보호막 적 20회 타격 시 파괴)
+    // 일반 탄환 충돌 판정
     for (let ei = enemies.length - 1; ei >= 0; ei--) {
       const e = enemies[ei];
       if (!isFrozen) e.update(dt, elapsed, speedScale, widthScale);
