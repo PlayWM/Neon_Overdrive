@@ -32,7 +32,7 @@ const nameInput = document.getElementById("name-input");
 
 const LOGICAL_WIDTH = 450;
 const LOGICAL_HEIGHT = 800;
-const VERSION_STR = "v20261010.GraphicFixed";
+const VERSION_STR = "v20261010.GhostBugFixed";
 const FIREBASE_URL = "https://flywm-d0b39-default-rtdb.asia-southeast1.firebasedatabase.app/leaderboard.json";
 const FONT_FAMILY = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Malgun Gothic', sans-serif";
 
@@ -313,7 +313,7 @@ function startBGMEngine() {
 }
 
 // =================================================================
-// 4. 게임 데이터 및 벡터 렌더러
+// 4. 게임 데이터 및 정밀 메카닉 벡터 그래픽 (100% 완전 복원)
 // =================================================================
 const CONFIG = {
   BASE_PLAYER_SPEED: 10.5,
@@ -448,7 +448,7 @@ function drawVectorPlayer(c, type, color, scale = 1.0, flameHeight = 0) {
   c.restore();
 }
 
-// 4종 정밀 메카닉 적 기체 렌더러
+// 4종 정밀 메카닉 적 기체 렌더러 복원
 function drawVectorRegularEnemy(c, subType) {
   c.save();
   c.lineJoin = "round";
@@ -530,7 +530,7 @@ function drawVectorRegularEnemy(c, subType) {
   c.restore();
 }
 
-// 엘리트 적: 분화구 암석 파편 렌더러
+// 엘리트 적: 회전 분화구 거대 암석
 function drawVectorEliteAsteroid(c, rockId, curTime) {
   c.save();
   c.rotate(curTime * 0.45);
@@ -620,7 +620,8 @@ function drawVectorLaserPod(c, lx, ly, muzzleFlashActive, curTime) {
 
   c.fillStyle = "#0a0f1d"; c.strokeStyle = "#00f5ff"; c.lineWidth = 1.4;
   c.beginPath();
-  c.moveTo(0, -14); c.lineTo(4, -10); c.lineTo(4, 12); c.lineTo(-4, 12); c.lineTo(-4, -10);
+  c.moveTo(0, -14); c.lineTo(4, -10); c.lineTo(4, 12); c.lineTo(-4, 12);
+  c.lineTo(-4, -10);
   c.closePath(); c.fill(); c.stroke();
 
   const corePulse = Math.sin(curTime * 15) * 0.3 + 0.7;
@@ -704,9 +705,7 @@ class Player {
         playTone(550, 0.12, "sine", 200, 0.22);
       };
       fireBurst();
-      if (this.missileStat >= 8) {
-        setTimeout(fireBurst, 180);
-      }
+      if (this.missileStat >= 8) setTimeout(fireBurst, 180);
     }
 
     if (!Number.isFinite(this.targetX)) this.targetX = this.x;
@@ -836,8 +835,9 @@ class HomingMissile {
   }
   update(dt, enemiesList) {
     this.life -= dt;
-    if (!this.target || this.target.hp <= 0 || this.target.isDead) {
-      const valids = enemiesList.filter(e => e.hp > 0 && !e.isDead);
+    // 화면 안쪽(y >= 0)에 있는 적만 타겟팅
+    if (!this.target || this.target.hp <= 0 || this.target.isDead || this.target.y < 0) {
+      const valids = enemiesList.filter(e => e.hp > 0 && !e.isDead && e.y >= 0);
       if (valids.length > 0) {
         valids.sort((a, b) => Math.hypot(a.x - this.x, a.y - this.y) - Math.hypot(b.x - this.x, b.y - this.y));
         this.target = valids[0];
@@ -874,7 +874,7 @@ class HomingMissile {
   }
 }
 
-// 거대 유성: 투명 판정 버그 방지를 위해 60초 이전에는 아예 생성 및 판정 차단
+// 60초 이전 완전 비활성화된 안전한 거대 유성 클래스
 class Meteor {
   constructor(themeIndex, side, spawnY) {
     this.theme = METEOR_THEMES[themeIndex % METEOR_THEMES.length];
@@ -979,7 +979,7 @@ class MeteorManager {
     this.pendingQueue = [];
     this.warningActive = false;
     this.warningStartTime = 0;
-    this.nextSpawnTime = 65.0; // 60초 이전에는 유성이 화면을 가로막지 않도록 완전히 안전지대화
+    this.nextSpawnTime = 65.0; // 60초 이전 출현 원천 차단
   }
   scheduleMeteor(spawnTime) {
     const side = Math.random() < 0.5 ? "left" : "right";
@@ -1020,6 +1020,8 @@ class MeteorManager {
     this.meteors = this.meteors.filter(m => m.active);
 
     this.meteors.forEach(m => {
+      // 화면 밖에서는 충돌 판정 제외
+      if (m.y < 0) return;
       for (let bi = bulletsList.length - 1; bi >= 0; bi--) {
         const b = bulletsList[bi];
         if (Math.hypot(b.x - m.x, b.y - m.y) < b.radius + m.radius) {
@@ -1122,6 +1124,7 @@ class BlackHole {
     const curR = this.baseRadius * (1.0 + Math.sin(this.life * 10) * 0.1);
     for (let ei = enemiesList.length - 1; ei >= 0; ei--) {
       const e = enemiesList[ei];
+      if (e.y < 0) continue;
       if (Math.hypot(e.x - this.x, e.y - this.y) <= curR + e.radius) {
         if (e.hasShield) continue;
         safeKillEnemy(e);
@@ -1177,6 +1180,7 @@ class LightningBolt {
     this.life -= dt;
     for (let ei = enemiesList.length - 1; ei >= 0; ei--) {
       const e = enemiesList[ei];
+      if (e.y < 0) continue;
       if (Math.hypot(e.x - this.x, e.y - this.y) <= this.radius + e.radius) {
         if (!e.hasShield && !e.isDead) safeKillEnemy(e, "#00f5ff");
       }
@@ -1210,7 +1214,8 @@ class BossDropItem {
     ctx.fillStyle = type === "P" ? "#ff0080" : (type === "M" ? "#00f5ff" : "#ffe600");
     ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2.0; ctx.stroke();
-    ctx.fillStyle = "#ffffff"; ctx.font = `bold 14px ${FONT_FAMILY}`;
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `bold 14px ${FONT_FAMILY}`;
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.fillText(type, this.x, this.y);
     ctx.restore();
@@ -1479,7 +1484,7 @@ function triggerSlotSequence() {
 
   playTone(800, 0.35, "sawtooth", -300, 0.3);
 
-  const validTargets = enemies.filter(e => !e.isDead && e.hp > 0).sort((a, b) => b.y - a.y);
+  const validTargets = enemies.filter(e => !e.isDead && e.hp > 0 && e.y >= 0).sort((a, b) => b.y - a.y);
   const colors = ["#00f5ff", "#ff007f", "#39ff14", "#ffe600", "#bf00ff", "#ff5500", "#ffffff"];
 
   if (validTargets.length === 0) {
@@ -1783,7 +1788,7 @@ function safeGameLoop(now) {
   blackHoles.forEach(b => b.update(dt, enemies));
   blackHoles = blackHoles.filter(b => b.life > 0);
 
-  // 1. 기체 선택 화면 (탑 10 랭킹은 이 화면에서만 노출)
+  // 1. 기체 선택 화면 (탑 10 랭킹)
   if (gameState === 0) {
     ctx.save();
     ctx.shadowColor = "#00f5ff";
@@ -2019,10 +2024,12 @@ function safeGameLoop(now) {
       bossMissiles = bossMissiles.filter(m => m.y < LOGICAL_HEIGHT + 30);
     }
 
+    // 유도 미사일 충돌 판정 (화면 바깥 y < 0 에 있는 투명 영역 적 제외)
     for (let mi = homingMissiles.length - 1; mi >= 0; mi--) {
       const m = homingMissiles[mi];
       for (let ei = enemies.length - 1; ei >= 0; ei--) {
         const e = enemies[ei];
+        if (e.y < 0) continue; // 화면 밖 투명 히트 차단
         if (Math.hypot(m.x - e.x, m.y - e.y) < m.radius + e.radius) {
           homingMissiles.splice(mi, 1);
           if (e.hasShield) {
@@ -2040,12 +2047,13 @@ function safeGameLoop(now) {
       }
     }
 
+    // 일반 탄환 충돌 판정 (화면 바깥 y < 0 에 있는 투명 영역 적 제외)
     for (let ei = enemies.length - 1; ei >= 0; ei--) {
       const e = enemies[ei];
       if (!isFrozen) e.update(dt, elapsed, speedScale, widthScale);
       if (e.y > LOGICAL_HEIGHT + 40) { enemies.splice(ei, 1); continue; }
 
-      if (!isFrozen) {
+      if (!isFrozen && e.y >= 0) {
         for (let bi = bullets.length - 1; bi >= 0; bi--) {
           const b = bullets[bi];
           if (Math.hypot(b.x - e.x, b.y - e.y) < b.radius + e.radius) {
@@ -2066,7 +2074,8 @@ function safeGameLoop(now) {
         }
       }
 
-      if (player && player.isAlive && Math.hypot(player.x - e.x, player.y - e.y) < player.radius + e.radius) {
+      // 화면 내부(y >= 10)에서만 플레이어 피격 충돌 허용
+      if (player && player.isAlive && e.y >= 10 && Math.hypot(player.x - e.x, player.y - e.y) < player.radius + e.radius) {
         if (player.shieldRemain > 0 && !e.hasShield) {
           safeKillEnemy(e);
         } else {
