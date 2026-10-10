@@ -32,7 +32,7 @@ const nameInput = document.getElementById("name-input");
 
 const LOGICAL_WIDTH = 450;
 const LOGICAL_HEIGHT = 800;
-const VERSION_STR = "v20261010.OverdriveFinal";
+const VERSION_STR = "v20261010.OverdriveFinal.01";
 const FIREBASE_URL = "https://flywm-d0b39-default-rtdb.asia-southeast1.firebasedatabase.app/leaderboard.json";
 const FONT_FAMILY = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Malgun Gothic', sans-serif";
 
@@ -60,6 +60,7 @@ function drawRoundRect(c, x, y, w, h, r) {
 
 function drawStarShape(c, cx, cy, spikes, outerRadius, innerRadius) {
   let rot = Math.PI / 2 * 3;
+  let x = cx, y = cy;
   let step = Math.PI / spikes;
   c.beginPath();
   c.moveTo(cx, cy - outerRadius);
@@ -117,11 +118,17 @@ let sessionStartTime = performance.now();
 try {
   const tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").toLowerCase();
   const offset = new Date().getTimezoneOffset();
-  if (tz.includes("ho_chi_minh") || tz.includes("hanoi") || tz.includes("bangkok") || offset === -420) userCountry = "Vietnam";
-  else if (tz.includes("seoul") || offset === -540) userCountry = "Korea";
-  else if (tz.includes("tokyo")) userCountry = "Japan";
-  else if (tz.includes("shanghai") || tz.includes("beijing")) userCountry = "China";
-  else if (tz.includes("new_york") || tz.includes("los_angeles") || tz.includes("chicago")) userCountry = "USA";
+  if (tz.includes("ho_chi_minh") || tz.includes("hanoi") || tz.includes("bangkok") || offset === -420) {
+    userCountry = "Vietnam";
+  } else if (tz.includes("seoul") || offset === -540) {
+    userCountry = "Korea";
+  } else if (tz.includes("tokyo")) {
+    userCountry = "Japan";
+  } else if (tz.includes("shanghai") || tz.includes("beijing")) {
+    userCountry = "China";
+  } else if (tz.includes("new_york") || tz.includes("los_angeles") || tz.includes("chicago")) {
+    userCountry = "USA";
+  }
 } catch(e){}
 
 setTimeout(() => {
@@ -641,7 +648,7 @@ class Player {
     this.frontShieldRemain = 0.0;
     this.speedFanBurstTimer = 0.0;
     this.lightningTimer = 0.0;
-    this.missileTimer = 0.0; // 유도 미사일 타이머
+    this.missileTimer = 0.0;
   }
   getDominantTrait() {
     if (this.pType === 0) return "MISSILE";
@@ -710,7 +717,7 @@ class Player {
     }
     const maxLimitX = LOGICAL_WIDTH - this.radius - (this.clonePlaneTimer > 0 ? 46 : 10);
     this.x = Math.max(this.radius + 10, Math.min(maxLimitX, this.x));
-    this.y = Math.max(this.radius + 10, Math.min(LOGICAL_HEIGHT - this.radius - 10, this.y));
+    this.y = Math.max(this.radius + 10, Math.min(LOGICAL_HEIGHT - player.radius - 10, this.y));
   }
   _fire(px, py, dmg, bullets) {
     const trait = this.getDominantTrait();
@@ -863,7 +870,7 @@ class Meteor {
     this.theme = METEOR_THEMES[themeIndex % METEOR_THEMES.length];
     this.side = side;
     this.radius = 24;
-    this.tailLength = 225; // 기존 150px 대비 50% 더 길게 연장
+    this.tailLength = 225; // 기존 대비 50% 더 길게 연장
     this.headShapeType = Math.floor(Math.random() * 5); // 5가지 다채로운 머리 형상
     // 머리 표면 울퉁불퉁 분화구 5개 무작위 생성
     this.craters = Array.from({ length: 5 }, () => {
@@ -1305,7 +1312,7 @@ function safeKillEnemy(e, customColor="#ffe600") {
   if (!e || e.isDead) return false;
   e.isDead = true;
   e.hp = 0;
-  // 돌맹이(isHeavy) 파괴 시 5점, 일반 적 파괴 시 1점 획득
+  // 돌맹이(isHeavy) 파괴 시 5점 획득, 일반 적 파괴 시 1점 획득
   const addScore = e.isHeavy ? 5 : 1;
   score = Math.max(0, Math.floor(score + addScore));
   const effectiveGauge = (player && player.shieldRemain > 0) ? (CONFIG.BASE_GAUGE_PER_KILL * 0.3) : CONFIG.BASE_GAUGE_PER_KILL;
@@ -1313,6 +1320,7 @@ function safeKillEnemy(e, customColor="#ffe600") {
   explosions.push(new ExplosionFX(e.x, e.y, customColor));
   return true;
 }
+
 class BossEnemy {
   constructor() {
     this.x = LOGICAL_WIDTH / 2;
@@ -1553,7 +1561,6 @@ function applyChosenSkill(code, customDuration=null) {
     player.shieldRemain = Math.min(30.0, player.shieldRemain + addedDuration);
   }
 
-  // 업그레이드 창 터치 시 비행기 좌표 튀는 버그 방지
   isTouchActive = false;
   if (player) {
     player.targetX = player.x;
@@ -1564,7 +1571,7 @@ function applyChosenSkill(code, customDuration=null) {
 }
 
 // =================================================================
-// 7. 통합 사용자 입력 리스너 (터치 간격 50% 단축 & 드래그 버그 수정)
+// 7. 통합 사용자 입력 리스너 (외곽 드래그 가드 및 터치 간격 50% 단축)
 // =================================================================
 function getCanvasCoords(clientX, clientY) {
   const rect = canvas.getBoundingClientRect();
@@ -1593,7 +1600,7 @@ function handlePointerDown(e) {
   } else if (gameState === 1 && player) {
     if (hedgehogLauncher.timeStopTimer <= 0) {
       player.targetX = coords.x;
-      // 터치 지점 대비 상단 오프셋을 기존 120px에서 60px(50% 감소)로 축소
+      // 터치 위치 대비 위쪽 오프셋을 60px로 축소 (거리 50% 단축)
       player.targetY = Math.max(player.radius + 10, Math.min(LOGICAL_HEIGHT - player.radius - 10, coords.y - 60));
     }
   } else if (gameState === 2 && !randomPickShowcaseActive) {
@@ -1785,7 +1792,7 @@ function safeGameLoop(now) {
   blackHoles.forEach(b => b.update(dt, enemies));
   blackHoles = blackHoles.filter(b => b.life > 0);
 
-  // 1. 기체 선택 화면 (탑 10 랭킹은 이 화면에서만 표시)
+  // 1. 기체 선택 화면 (탑 10 랭킹은 이 화면에서만 노출)
   if (gameState === 0) {
     ctx.save();
     ctx.shadowColor = "#00f5ff";
@@ -2023,7 +2030,7 @@ function safeGameLoop(now) {
       bossMissiles = bossMissiles.filter(m => m.y < LOGICAL_HEIGHT + 30);
     }
 
-    // 유도 미사일과 적 충돌 판정
+    // 유도 미사일 피격 판정
     for (let mi = homingMissiles.length - 1; mi >= 0; mi--) {
       const m = homingMissiles[mi];
       for (let ei = enemies.length - 1; ei >= 0; ei--) {
@@ -2045,7 +2052,7 @@ function safeGameLoop(now) {
       }
     }
 
-    // 일반 탄환과 적 충돌 판정 (보호막 적 20회 타격 시 파괴)
+    // 일반 탄환 피격 판정 (보호막 적 20회 타격 시 파괴)
     for (let ei = enemies.length - 1; ei >= 0; ei--) {
       const e = enemies[ei];
       if (!isFrozen) e.update(dt, elapsed, speedScale, widthScale);
